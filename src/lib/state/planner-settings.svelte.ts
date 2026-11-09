@@ -128,11 +128,13 @@ export class PlannerSettings {
 	readonly design = new (class DesignSettings {
 		aspectRatio = $state(0.75);
 		width = $state(702);
-		font = $state('Roboto');
-		fontDisplay = $state('Bebas Neue');
-		colorText = $state('#424242');
-		colorLines = $state('#e2e2e2');
-		colorDots = $state('#454545');
+		font = $state('Manrope');
+		fontDisplay = $state('Manrope');
+		// Solid black text & very dark grey lines/dots. Light greys get washed out
+		// on e-ink displays like the reMarkable 2.
+		colorText = $state('#000000');
+		colorLines = $state('#333333');
+		colorDots = $state('#333333');
 	})();
 
 	/** Settings for changing the dates of the planner (like start & end dates) */
@@ -154,7 +156,7 @@ export class PlannerSettings {
 		showCollectionLinks = $state(true);
 		width = $state(52);
 		leftSide = $state(true);
-		font = $state('Bebas Neue');
+		font = $state('Manrope');
 	})();
 
 	/** Settings for changing the top navigation bar display */
@@ -162,7 +164,7 @@ export class PlannerSettings {
 		disable = $state(false);
 		showCollectionLinks = $state(true);
 		height = $state(45);
-		font = $state('Bebas Neue');
+		font = $state('Manrope');
 	})();
 
 	/** Settings for changing the cover page display */
@@ -174,7 +176,7 @@ export class PlannerSettings {
 		showCollectionLinks = $state(true);
 		showCurrentDay = $state(false);
 		darkBackground = $state(true);
-		font = $state('Bebas Neue');
+		font = $state('Fraunces');
 	})();
 
 	/** Settings for changing how the year pages should work */

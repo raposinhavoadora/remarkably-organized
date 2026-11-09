@@ -38,6 +38,13 @@ export const fonts = [
 		lightWeight: 400,
 	},
 	{
+		name: 'Fraunces',
+		size: 0.78,
+		boldWeight: 700,
+		normalWeight: 500,
+		lightWeight: 400,
+	},
+	{
 		name: 'Indie Flower',
 		size: 0.93,
 		boldWeight: 600,
@@ -59,6 +66,7 @@ export const fonts = [
 		lightWeight: 400,
 	},
 	{ name: 'Lobster', size: 0.92, boldWeight: 600, normalWeight: 400, lightWeight: 400 },
+	{ name: 'Manrope', size: 0.8, boldWeight: 700, normalWeight: 500, lightWeight: 400 },
 	{
 		name: 'Montserrat',
 		size: 0.77,
