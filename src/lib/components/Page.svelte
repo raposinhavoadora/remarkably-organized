@@ -12,6 +12,8 @@
 	import AgendaWeek from './AgendaWeek.svelte';
 	import AgendaDay from './AgendaDay.svelte';
 	import TaskProgress from './TaskProgress.svelte';
+	import FieldBookPage from '$lib/fieldbook/FieldBookPage.svelte';
+	import { isFbTemplate, type FbContext } from '$lib/fieldbook/fieldbook';
 
 	let {
 		display = 'dotted' as Collection['type'],
@@ -21,6 +23,7 @@
 		lines = undefined as number | undefined,
 		aspectRatio = 1.5,
 		padding = null as string | null,
+		fieldBook = {} as Partial<FbContext>,
 	} = $props();
 
 	const size = $derived(
@@ -43,7 +46,9 @@
 </script>
 
 <div class="page {display.split('-')[0]}" style:padding>
-	{#if display === 'notes-year'}
+	{#if isFbTemplate(display)}
+		<FieldBookPage {...fieldBook} template={display} {settings} {timeframe} />
+	{:else if display === 'notes-year'}
 		<NotesYear
 			months={settings.months.filter((m) => m.year === timeframe.year)}
 			{settings} />
@@ -126,7 +131,7 @@
 		overflow: hidden;
 		position: relative;
 
-		&:not(.lined) {
+		&:not(.lined):not(.fb) {
 			padding-top: 0.5rem;
 		}
 		&.dotted {

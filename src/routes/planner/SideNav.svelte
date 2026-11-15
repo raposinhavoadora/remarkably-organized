@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { PlannerSettings, type Timeframe } from '$lib';
 	import { getFontInfo } from '../fonts/fonts';
+	import { fbNavLinks } from '$lib/fieldbook/fieldbook';
 
 	let {
 		timeframe = {} as Timeframe,
@@ -89,6 +90,11 @@
 		),
 	);
 	const days = $derived(dayList.slice(startDay, startDay + numDaysInSideNav));
+	// All of the Field Book links only fit below a short list of tabs
+	const fewTabs = $derived(
+		['days-this-week', 'weeks-this-month', 'quarters', 'none'].includes(tabs),
+	);
+	const links = $derived([...fbNavLinks(settings, fewTabs), ...settings.collections]);
 </script>
 
 {#if !settings.sideNav.disable}
@@ -211,11 +217,11 @@
 			</ol>
 		{/if}
 		<div class="spacer"></div>
-		{#if settings.sideNav.showCollectionLinks && settings.collections.length}
+		{#if settings.sideNav.showCollectionLinks && links.length}
 			<ol class="links">
-				{#each [...settings.collections].reverse() as collection, i (collection.id)}
+				{#each [...links].reverse() as collection, i (collection.id)}
 					<li><a href="#{collection.id}">{collection.name}</a></li>
-					{#if i !== settings.collections.length - 1}
+					{#if i !== links.length - 1}
 						<li class="separator">/</li>
 					{/if}
 				{/each}

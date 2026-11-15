@@ -11,6 +11,23 @@ Use the "settings" modal to change the planner's content & design. The preview o
 
 The current settings are saved in the URL so a particular planner can be shared easily. Just copy the URL and share with others!
 
+## Field Book
+
+This planner has a bullet-journal system woven into it: the Field Book. Its pages sit where they are used, and every cross-reference is a link.
+
+- **Front** (after the cover): rules, key, rituals, an index of every section, threads and a future log.
+- **Each quarter** is a season: season compass, race trace and heartbeat (with the quarter's weeks filled in), project board, red line and migration.
+- **Each month** opens with a day-by-day list and a month plan.
+- **Each week** has a week plan and an inbox.
+- **Each day** has its own page. Sunday's lower half is the Pit Wall, the weekly review.
+- **Back** (after the last day): project cards with their decisions, evolution and back-plan pages, walks, ideas and the system lists (asks, promises, energy menu, train list, wins, lessons).
+
+The pages use the planner's font and colors, and mark things by shape instead of color so they read well on e-ink.
+
+In the settings (under "Advanced Settings") you can set the number of project slots and your project tags, or turn the Field Book sections off. The month, week and day pages are regular page templates: pick another template there to get the original planner pages back.
+
+The page designs live in `src/lib/fieldbook`.
+
 ## Exporting to PDF
 
 To get the PDF of the generated planner, use the built in print-to-pdf functionality of Chrome. Make sure "Background Graphics" is enabled.

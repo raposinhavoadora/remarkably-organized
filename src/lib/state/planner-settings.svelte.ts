@@ -176,7 +176,7 @@ export class PlannerSettings {
 		showCollectionLinks = $state(true);
 		showCurrentDay = $state(false);
 		darkBackground = $state(true);
-		font = $state('Fraunces');
+		font = $state('Manrope');
 	})();
 
 	/** Settings for changing how the year pages should work */
@@ -196,17 +196,17 @@ export class PlannerSettings {
 	/** Settings for changing how the monthly pages should work */
 	readonly monthPage = new (class MonthPageSettings {
 		disable = $state(false);
-		template = $state('calendar-month-with-notes' as PageTemplate);
-		notePagesTemplate = $state('dotted' as PageTemplate);
-		notePagesAmount = $state(2);
+		template = $state('fb-month' as PageTemplate);
+		notePagesTemplate = $state('fb-month-plan' as PageTemplate);
+		notePagesAmount = $state(1);
 	})();
 
 	/** Settings for changing how the weekly pages should work */
 	readonly weekPage = new (class WeekPageSettings {
 		disable = $state(false);
-		template = $state('agenda-week' as PageTemplate);
-		notePagesTemplate = $state('dotted' as PageTemplate);
-		notePagesAmount = $state(0);
+		template = $state('fb-week' as PageTemplate);
+		notePagesTemplate = $state('fb-inbox' as PageTemplate);
+		notePagesAmount = $state(1);
 		useWeekSinceYear = $state(true);
 		useWeekNumbersInSideNav = $state(false);
 		sideNavDisplay = $state(
@@ -223,7 +223,7 @@ export class PlannerSettings {
 	/** Settings for changing how the daily pages should work */
 	readonly dayPage = new (class DayPageSettings {
 		disable = $state(false);
-		template = $state('notes-day' as PageTemplate);
+		template = $state('fb-day' as PageTemplate);
 		notePagesTemplate = $state('dotted' as PageTemplate);
 		notePagesAmount = $state(0);
 		sideNavDisplay = $state(
@@ -235,6 +235,19 @@ export class PlannerSettings {
 				| 'weeks-this-month'
 				| 'months',
 		);
+	})();
+
+	/**
+	 * Settings for the Field Book: the front pages after the cover, the season pages
+	 * after each quarter and the project/ideas/system pages after the last day.
+	 * (The Field Book month, week & day pages are page templates of those pages.)
+	 */
+	readonly fieldBook = new (class FieldBookSettings {
+		disable = $state(false);
+		/** The number of project slots (each one has a card and three log pages) */
+		projects = $state(8);
+		/** The project tags for the key: one per line, like `HM home and kids` */
+		tags = $state('');
 	})();
 
 	/** The list of extra note/goals collections in addition to the planner pages */
@@ -426,6 +439,19 @@ export class PlannerSettings {
 		}, [] as Day[]),
 	);
 
+	/** The ids of all the dated pages. Used to only link to pages that exist */
+	readonly pageIds = $derived(
+		new Set(
+			[
+				...(this.yearPage.disable ? [] : this.years),
+				...(this.quarterPage.disable ? [] : this.quarters),
+				...(this.monthPage.disable ? [] : this.months),
+				...(this.weekPage.disable ? [] : this.weeks),
+				...(this.dayPage.disable ? [] : this.days),
+			].map((timeframe) => timeframe.id),
+		),
+	);
+
 	/** The list of events imported from the calendars ics urls */
 	events = $derived(
 		this.calendars
@@ -557,6 +583,11 @@ export class PlannerSettings {
 				notePagesAmount: this.dayPage.notePagesAmount,
 				sideNavDisplay: this.dayPage.sideNavDisplay,
 				template: this.dayPage.template,
+			},
+			fieldBook: {
+				disable: this.fieldBook.disable,
+				projects: this.fieldBook.projects,
+				tags: this.fieldBook.tags,
 			},
 			collections: this.collections.map((collection) => ({
 				...collection,
@@ -705,6 +736,13 @@ export class PlannerSettings {
 		}
 
 		// Collections
+		// Field Book Settings
+		if (state?.fieldBook?.disable !== undefined)
+			this.fieldBook.disable = state.fieldBook.disable;
+		if (state?.fieldBook?.projects !== undefined)
+			this.fieldBook.projects = state.fieldBook.projects;
+		if (state?.fieldBook?.tags !== undefined) this.fieldBook.tags = state.fieldBook.tags;
+
 		if (state?.collections !== undefined) {
 			this.collections = state.collections.filter(Boolean).map((collection, i) => ({
 				id: collection?.id || `${i}`,
