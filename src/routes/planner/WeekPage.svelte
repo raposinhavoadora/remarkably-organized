@@ -7,26 +7,17 @@
 	let { week = {} as Week, settings = {} as PlannerSettings } = $props();
 </script>
 
-<article id={week.id} use:intersect={{ rootMargin: '1000px 0px 1000px 0px' }}>
-	<SideNav tabs={settings.weekPage.sideNavDisplay} {settings} timeframe={week}></SideNav>
-	<TopNav {settings} timeframe={week} />
-	<Page {settings} display={settings.weekPage.template} timeframe={week} />
-</article>
-
-{#if settings.weekPage.notePagesAmount > 0}
-	{#each new Array(settings.weekPage.notePagesAmount) as _, i}
-		<article
-			id="{week.id}-pg{i + 2}"
-			use:intersect={{ rootMargin: '1000px 0px 1000px 0px' }}>
-			<SideNav {settings} tabs={settings.weekPage.sideNavDisplay} timeframe={week} />
-			<TopNav
-				{settings}
-				timeframe={week}
-				breadcrumbs={[{ href: `#${week.id}-pg${i + 2}`, name: `Page ${i + 2}` }]} />
-			<Page display={settings.weekPage.notePagesTemplate} {settings} timeframe={week} />
-		</article>
-	{/each}
-{/if}
+{#each settings.weekPage.pages as template, i (i)}
+	{@const id = i === 0 ? week.id : `${week.id}-pg${i + 1}`}
+	<article {id} use:intersect={{ rootMargin: '1000px 0px 1000px 0px' }}>
+		<SideNav {settings} tabs={settings.weekPage.sideNavDisplay} timeframe={week} />
+		<TopNav
+			{settings}
+			timeframe={week}
+			breadcrumbs={i === 0 ? [] : [{ href: `#${id}`, name: `Page ${i + 1}` }]} />
+		<Page display={template} {settings} timeframe={week} />
+	</article>
+{/each}
 
 <style lang="scss">
 	article {

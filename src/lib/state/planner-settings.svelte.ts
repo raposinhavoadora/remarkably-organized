@@ -120,6 +120,20 @@ export interface Day extends Week {
 	weekQuarter: number;
 }
 
+/** Lists the template of each page of a month or week: up to two pages & the note pages */
+function pageTemplates(
+	template: PageTemplate,
+	secondPageTemplate: PageTemplate | 'none',
+	notePagesTemplate: PageTemplate,
+	notePagesAmount: number,
+): PageTemplate[] {
+	return [
+		template,
+		...(secondPageTemplate && secondPageTemplate !== 'none' ? [secondPageTemplate] : []),
+		...new Array(Math.max(0, Math.floor(notePagesAmount) || 0)).fill(notePagesTemplate),
+	];
+}
+
 export class PlannerSettings {
 	private initialSettings: ReturnType<PlannerSettings['serialize']> | undefined =
 		undefined;
@@ -196,17 +210,39 @@ export class PlannerSettings {
 	/** Settings for changing how the monthly pages should work */
 	readonly monthPage = new (class MonthPageSettings {
 		disable = $state(false);
-		template = $state('fb-month' as PageTemplate);
+		template = $state('calendar-month-with-notes' as PageTemplate);
+		/** A second page with its own template, before the note pages */
+		secondPageTemplate = $state('fb-month' as PageTemplate | 'none');
 		notePagesTemplate = $state('fb-month-plan' as PageTemplate);
 		notePagesAmount = $state(1);
+		/** The template of each page of a month, in order */
+		readonly pages = $derived(
+			pageTemplates(
+				this.template,
+				this.secondPageTemplate,
+				this.notePagesTemplate,
+				this.notePagesAmount,
+			),
+		);
 	})();
 
 	/** Settings for changing how the weekly pages should work */
 	readonly weekPage = new (class WeekPageSettings {
 		disable = $state(false);
-		template = $state('fb-week' as PageTemplate);
+		template = $state('agenda-week' as PageTemplate);
+		/** A second page with its own template, before the note pages */
+		secondPageTemplate = $state('fb-week' as PageTemplate | 'none');
 		notePagesTemplate = $state('fb-inbox' as PageTemplate);
 		notePagesAmount = $state(1);
+		/** The template of each page of a week, in order */
+		readonly pages = $derived(
+			pageTemplates(
+				this.template,
+				this.secondPageTemplate,
+				this.notePagesTemplate,
+				this.notePagesAmount,
+			),
+		);
 		useWeekSinceYear = $state(true);
 		useWeekNumbersInSideNav = $state(false);
 		sideNavDisplay = $state(
@@ -565,6 +601,7 @@ export class PlannerSettings {
 			monthPage: {
 				disable: this.monthPage.disable,
 				template: this.monthPage.template,
+				secondPageTemplate: this.monthPage.secondPageTemplate,
 				notePagesTemplate: this.monthPage.notePagesTemplate,
 				notePagesAmount: this.monthPage.notePagesAmount,
 			},
@@ -576,6 +613,7 @@ export class PlannerSettings {
 				useWeekNumbersInSideNav: this.weekPage.useWeekNumbersInSideNav,
 				sideNavDisplay: this.weekPage.sideNavDisplay,
 				template: this.weekPage.template,
+				secondPageTemplate: this.weekPage.secondPageTemplate,
 			},
 			dayPage: {
 				disable: this.dayPage.disable,
@@ -691,6 +729,8 @@ export class PlannerSettings {
 			this.monthPage.notePagesAmount = state.monthPage.notePagesAmount;
 		if (state?.monthPage?.template !== undefined)
 			this.monthPage.template = state.monthPage.template;
+		if (state?.monthPage?.secondPageTemplate !== undefined)
+			this.monthPage.secondPageTemplate = state.monthPage.secondPageTemplate;
 
 		// Week Page Settings
 		if (state?.weekPage?.disable !== undefined)
@@ -705,6 +745,8 @@ export class PlannerSettings {
 			this.weekPage.useWeekNumbersInSideNav = state.weekPage.useWeekNumbersInSideNav;
 		if (state?.weekPage?.template !== undefined)
 			this.weekPage.template = state.weekPage.template;
+		if (state?.weekPage?.secondPageTemplate !== undefined)
+			this.weekPage.secondPageTemplate = state.weekPage.secondPageTemplate;
 		if (state?.weekPage?.sideNavDisplay !== undefined)
 			this.weekPage.sideNavDisplay = state.weekPage.sideNavDisplay;
 

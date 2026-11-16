@@ -292,6 +292,20 @@ export function fbSeasonId(
 	return quarter ? `${quarter.id}-${page}` : undefined;
 }
 
+/**
+ * The id of the page of a month or week that is drawn with a template: its first
+ * page if none of its pages is. (Each month and week has several pages.)
+ */
+export function fbPageWith(
+	settings: PlannerSettings,
+	timeframe: 'month' | 'week',
+	id: string,
+	template: FbTemplate,
+) {
+	const index = settings[`${timeframe}Page`].pages.indexOf(template);
+	return index > 0 ? `${id}-pg${index + 1}` : id;
+}
+
 /** Returns the id if that page is part of the planner, so that no link leads nowhere */
 export function fbTarget(settings: PlannerSettings, id: string | undefined) {
 	if (!id) return undefined;
@@ -312,14 +326,14 @@ export function fbTarget(settings: PlannerSettings, id: string | undefined) {
 			settings.pageIds.has(season[1]);
 		return exists ? id : undefined;
 	}
-	const page2 = id.match(/^(.+)-pg2$/);
-	if (page2) {
-		const amount = /-wk\d+$/.test(page2[1])
-			? settings.weekPage.notePagesAmount
-			: /^\d+-\d+$/.test(page2[1])
-				? settings.monthPage.notePagesAmount
-				: 0;
-		return amount >= 1 && settings.pageIds.has(page2[1]) ? id : undefined;
+	const page = id.match(/^(.+)-pg(\d+)$/);
+	if (page) {
+		const pages = /-wk\d+$/.test(page[1])
+			? settings.weekPage.pages
+			: /^\d+-\d+$/.test(page[1])
+				? settings.monthPage.pages
+				: [];
+		return +page[2] <= pages.length && settings.pageIds.has(page[1]) ? id : undefined;
 	}
 	return settings.pageIds.has(id) ? id : undefined;
 }

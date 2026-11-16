@@ -17,14 +17,14 @@ This planner has a bullet-journal system woven into it: the Field Book. Its page
 
 - **Front** (after the cover): rules, key, rituals, an index of every section, threads and a future log.
 - **Each quarter** is a season: season compass, race trace and heartbeat (with the quarter's weeks filled in), project board, red line and migration.
-- **Each month** opens with a day-by-day list and a month plan.
-- **Each week** has a week plan and an inbox.
+- **Each month** has the calendar, then a day-by-day list and a month plan.
+- **Each week** has the agenda, then a week plan and an inbox.
 - **Each day** has its own page. Sunday's lower half is the Pit Wall, the weekly review.
 - **Back** (after the last day): project cards with their decisions, evolution and back-plan pages, walks, ideas and the system lists (asks, promises, energy menu, train list, wins, lessons).
 
 The pages use the planner's font and colors, and mark things by shape instead of color so they read well on e-ink.
 
-In the settings (under "Advanced Settings") you can set the number of project slots and your project tags, or turn the Field Book sections off. The month, week and day pages are regular page templates: pick another template there to get the original planner pages back.
+In the settings (under "Advanced Settings") you can set the number of project slots and your project tags, or turn the Field Book sections off. The month, week and day pages are regular page templates. A month and a week can each hold three different ones: the page template, a second page template and the template of the note pages.
 
 The page designs live in `src/lib/fieldbook`.
 

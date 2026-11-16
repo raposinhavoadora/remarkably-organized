@@ -423,6 +423,17 @@
 						</select>
 					</fieldset>
 					<fieldset>
+						<label for="monthSecondPageTemplate">Second Month Page Template</label>
+						<select
+							id="monthSecondPageTemplate"
+							bind:value={settings.monthPage.secondPageTemplate}>
+							<option value="none">None</option>
+							{#each getAvailablePageTemplates('month') as template (template.value)}
+								<option value={template.value}>{template.name}</option>
+							{/each}
+						</select>
+					</fieldset>
+					<fieldset>
 						<label for="monthNotePagesAmount">Additional Note Pages</label>
 						<input
 							type="number"
@@ -458,6 +469,17 @@
 					<fieldset>
 						<label for="weekPageTemplate">Week Page Template</label>
 						<select id="weekPageTemplate" bind:value={settings.weekPage.template}>
+							{#each getAvailablePageTemplates('week') as template (template.value)}
+								<option value={template.value}>{template.name}</option>
+							{/each}
+						</select>
+					</fieldset>
+					<fieldset>
+						<label for="weekSecondPageTemplate">Second Week Page Template</label>
+						<select
+							id="weekSecondPageTemplate"
+							bind:value={settings.weekPage.secondPageTemplate}>
+							<option value="none">None</option>
 							{#each getAvailablePageTemplates('week') as template (template.value)}
 								<option value={template.value}>{template.name}</option>
 							{/each}

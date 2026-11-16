@@ -7,26 +7,17 @@
 	let { month = {} as Month, settings = {} as PlannerSettings } = $props();
 </script>
 
-<article id={month.id} use:intersect={{ rootMargin: '1000px 0px 1000px 0px' }}>
-	<SideNav tabs="months" {settings} timeframe={month}></SideNav>
-	<TopNav {settings} timeframe={month} />
-	<Page {settings} display={settings.monthPage.template} timeframe={month} />
-</article>
-
-{#if settings.monthPage.notePagesAmount > 0}
-	{#each new Array(settings.monthPage.notePagesAmount) as _, i}
-		<article
-			id="{month.id}-pg{i + 2}"
-			use:intersect={{ rootMargin: '1000px 0px 1000px 0px' }}>
-			<SideNav {settings} tabs="months" timeframe={month} />
-			<TopNav
-				{settings}
-				timeframe={month}
-				breadcrumbs={[{ href: `#${month.id}-pg${i + 2}`, name: `Page ${i + 2}` }]} />
-			<Page display={settings.monthPage.notePagesTemplate} {settings} timeframe={month} />
-		</article>
-	{/each}
-{/if}
+{#each settings.monthPage.pages as template, i (i)}
+	{@const id = i === 0 ? month.id : `${month.id}-pg${i + 1}`}
+	<article {id} use:intersect={{ rootMargin: '1000px 0px 1000px 0px' }}>
+		<SideNav {settings} tabs="months" timeframe={month} />
+		<TopNav
+			{settings}
+			timeframe={month}
+			breadcrumbs={i === 0 ? [] : [{ href: `#${id}`, name: `Page ${i + 1}` }]} />
+		<Page display={template} {settings} timeframe={month} />
+	</article>
+{/each}
 
 <style lang="scss">
 	article {

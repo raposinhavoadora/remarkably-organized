@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { fbSeasonId, fbWeekOf, type FbContext } from '../fieldbook';
+	import { fbPageWith, fbSeasonId, fbWeekOf, type FbContext } from '../fieldbook';
 	import Ref from '../Ref.svelte';
 
 	let { ctx }: { ctx: FbContext } = $props();
@@ -154,7 +154,9 @@
 			<span class="bx" style="margin-left:16px"></span>
 			calendar
 			<span class="bx" style="margin-left:16px"></span>
-			<Ref {ctx} to={nextWeek.id}>Week’s 3 → Mon 10:00</Ref>
+			<Ref {ctx} to={fbPageWith(ctx.settings, 'week', nextWeek.id, 'fb-week')}>
+				Week’s 3 → Mon 10:00
+			</Ref>
 		</div>
 	{/if}
 </div>

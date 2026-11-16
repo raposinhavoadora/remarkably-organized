@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { fbTarget, type FbContext } from '../fieldbook';
+	import { fbPageWith, fbTarget, type FbContext } from '../fieldbook';
 	import Ref from '../Ref.svelte';
 	import Tab from '../Tab.svelte';
 
@@ -10,12 +10,15 @@
 	const name = $derived(
 		ctx.timeframe.month ? `${ctx.timeframe.nameShort} ${start.getUTCFullYear()}` : '',
 	);
-	/** The page of the following month, if the planner has one */
+	/** The plan of the following month, if the planner has one */
 	const next = $derived.by(() => {
 		if (!ctx.timeframe.month) return undefined;
 		const date = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1));
 		const id = `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}`;
-		const target = fbTarget(ctx.settings, `${id}-pg2`) ?? fbTarget(ctx.settings, id);
+		const target = fbTarget(
+			ctx.settings,
+			fbPageWith(ctx.settings, 'month', id, 'fb-month-plan'),
+		);
 		if (!target) return undefined;
 		return {
 			id: target,
