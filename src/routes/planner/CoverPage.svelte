@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { intersect, type PlannerSettings } from '$lib';
 	import { getFontInfo } from '../fonts/fonts';
+	import { fbNavLinks } from '$lib/fieldbook/fieldbook';
 
 	let { settings = {} as PlannerSettings } = $props();
 
@@ -17,6 +18,7 @@
 							? `#${settings.days[0].id}`
 							: '',
 	);
+	const links = $derived([...fbNavLinks(settings, false), ...settings.collections]);
 </script>
 
 <article
@@ -109,15 +111,15 @@
 				</a>
 			</div>
 		{/if}
-		{#if settings.collections?.length && settings.coverPage.showCollectionLinks}
+		{#if links.length && settings.coverPage.showCollectionLinks}
 			<div class="links">
 				{#if plannerLink}<a href={plannerLink}>Planner</a>{/if}
-				{#if plannerLink && settings.collections.length}
+				{#if plannerLink && links.length}
 					<span class="separator">/</span>
 				{/if}
-				{#each settings.collections as collection, i (collection.id)}
+				{#each links as collection, i (collection.id)}
 					<a href="#{collection.id}">{collection.name}</a>
-					{#if i !== settings.collections.length - 1}
+					{#if i !== links.length - 1}
 						<span class="separator">/</span>
 					{/if}
 				{/each}

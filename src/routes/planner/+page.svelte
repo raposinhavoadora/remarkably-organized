@@ -11,6 +11,8 @@
 	import WeekPage from './WeekPage.svelte';
 	import DayPage from './DayPage.svelte';
 	import CollectionPages from './CollectionPages.svelte';
+	import FieldBookPages from './FieldBookPages.svelte';
+	import { fbBack, fbFront, fbTemplates } from '$lib/fieldbook/fieldbook';
 	import HelpModal from './HelpModal.svelte';
 	import { browser } from '$app/environment';
 	import { fonts, getGoogleFontURL } from '../fonts/fonts';
@@ -48,7 +50,14 @@
 		{ name: 'Notes - Daily', value: 'notes-day' },
 		{ name: 'Habit Checkboxes - Grouped by Week', value: 'habit-year-by-week' },
 		{ name: 'Habit Checkboxes - Grouped by Month', value: 'habit-year-by-month' },
-	];
+		...Object.entries(fbTemplates)
+			.filter(([, template]) => template.scope !== 'none')
+			.map(([value, template]) => ({
+				name: `Field Book - ${template.name}`,
+				value,
+				scope: template.scope,
+			})),
+	] as { name: string; value: string; scope?: string }[];
 
 	const font = $derived(fonts.find((f) => f.name === settings.design.font) ?? fonts[0]);
 	const googleFontURL = $derived(
@@ -67,6 +76,7 @@
 		location: 'collection' | 'year' | 'month' | 'quarter' | 'week' | 'day',
 	) {
 		return pageTemplates.filter((t) => {
+			if (t.scope) return t.scope === 'any' || t.scope === location;
 			if (
 				!t.value.startsWith('notes') &&
 				!t.value.startsWith('habit') &&
@@ -413,6 +423,17 @@
 						</select>
 					</fieldset>
 					<fieldset>
+						<label for="monthSecondPageTemplate">Second Month Page Template</label>
+						<select
+							id="monthSecondPageTemplate"
+							bind:value={settings.monthPage.secondPageTemplate}>
+							<option value="none">None</option>
+							{#each getAvailablePageTemplates('month') as template (template.value)}
+								<option value={template.value}>{template.name}</option>
+							{/each}
+						</select>
+					</fieldset>
+					<fieldset>
 						<label for="monthNotePagesAmount">Additional Note Pages</label>
 						<input
 							type="number"
@@ -448,6 +469,17 @@
 					<fieldset>
 						<label for="weekPageTemplate">Week Page Template</label>
 						<select id="weekPageTemplate" bind:value={settings.weekPage.template}>
+							{#each getAvailablePageTemplates('week') as template (template.value)}
+								<option value={template.value}>{template.name}</option>
+							{/each}
+						</select>
+					</fieldset>
+					<fieldset>
+						<label for="weekSecondPageTemplate">Second Week Page Template</label>
+						<select
+							id="weekSecondPageTemplate"
+							bind:value={settings.weekPage.secondPageTemplate}>
+							<option value="none">None</option>
 							{#each getAvailablePageTemplates('week') as template (template.value)}
 								<option value={template.value}>{template.name}</option>
 							{/each}
@@ -650,6 +682,35 @@
 					</fieldset>
 				{/if}
 
+				<h3>Field Book</h3>
+				<div class="checkbox">
+					<input
+						type="checkbox"
+						bind:checked={settings.fieldBook.disable}
+						id="fieldBookDisable" />
+					<label for="fieldBookDisable">Disable Field Book Sections</label>
+				</div>
+				{#if !settings.fieldBook.disable}
+					<fieldset>
+						<label for="fieldBookProjects">Project Slots</label>
+						<input
+							type="number"
+							min="0"
+							max="40"
+							id="fieldBookProjects"
+							bind:value={settings.fieldBook.projects} />
+					</fieldset>
+					<fieldset>
+						<label for="fieldBookTags">Project Tags (one per line)</label>
+						<textarea
+							id="fieldBookTags"
+							rows="4"
+							placeholder="HM home and kids"
+							bind:value={settings.fieldBook.tags}>
+						</textarea>
+					</fieldset>
+				{/if}
+
 				<h3>Collections</h3>
 				<div class="collections">
 					{#each settings.collections as collection, i (collection.id)}
@@ -833,6 +894,9 @@
 	{#if !settings.coverPage.disable && loadPages}
 		<CoverPage {settings} />
 	{/if}
+	{#if !settings.fieldBook.disable && loadPages}
+		<FieldBookPages {settings} entries={fbFront(settings)} />
+	{/if}
 	{#if !settings.yearPage.disable && loadPages}
 		{#each settings.years as year, i}
 			<YearPage {settings} {year} />
@@ -857,6 +921,9 @@
 		{#each settings.days as day, i (i)}
 			<DayPage {settings} {day} />
 		{/each}
+	{/if}
+	{#if !settings.fieldBook.disable && loadPages}
+		<FieldBookPages {settings} entries={fbBack(settings)} />
 	{/if}
 	{#if loadPages}
 		{#each settings.collections as collection (collection.id)}
@@ -985,8 +1052,12 @@
 				font-weight: 300;
 				margin: 0 0 0.1rem 0.25rem;
 			}
-			input {
+			input,
+			textarea {
 				width: 100%;
+			}
+			textarea {
+				resize: vertical;
 			}
 		}
 	}

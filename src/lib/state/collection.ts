@@ -1,3 +1,5 @@
+import type { FbTemplate } from '$lib/fieldbook/fieldbook';
+
 /**
  * The type of collection. This is used to determine how to display the collection.
  * 'blank' - A collection of freeform items (useful for notes, etc.)
@@ -38,7 +40,8 @@ export type PageTemplate =
 	| 'notes-week-rows'
 	| 'notes-day'
 	| 'habit-year-by-week'
-	| 'habit-year-by-month';
+	| 'habit-year-by-month'
+	| FbTemplate;
 
 export interface Collection {
 	/** The URL friendly slug used to link & id the collection */

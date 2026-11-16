@@ -120,6 +120,20 @@ export interface Day extends Week {
 	weekQuarter: number;
 }
 
+/** Lists the template of each page of a month or week: up to two pages & the note pages */
+function pageTemplates(
+	template: PageTemplate,
+	secondPageTemplate: PageTemplate | 'none',
+	notePagesTemplate: PageTemplate,
+	notePagesAmount: number,
+): PageTemplate[] {
+	return [
+		template,
+		...(secondPageTemplate && secondPageTemplate !== 'none' ? [secondPageTemplate] : []),
+		...new Array(Math.max(0, Math.floor(notePagesAmount) || 0)).fill(notePagesTemplate),
+	];
+}
+
 export class PlannerSettings {
 	private initialSettings: ReturnType<PlannerSettings['serialize']> | undefined =
 		undefined;
@@ -128,11 +142,13 @@ export class PlannerSettings {
 	readonly design = new (class DesignSettings {
 		aspectRatio = $state(0.75);
 		width = $state(702);
-		font = $state('Roboto');
-		fontDisplay = $state('Bebas Neue');
-		colorText = $state('#424242');
-		colorLines = $state('#e2e2e2');
-		colorDots = $state('#454545');
+		font = $state('Manrope');
+		fontDisplay = $state('Manrope');
+		// Solid black text & very dark grey lines/dots. Light greys get washed out
+		// on e-ink displays like the reMarkable 2.
+		colorText = $state('#000000');
+		colorLines = $state('#333333');
+		colorDots = $state('#333333');
 	})();
 
 	/** Settings for changing the dates of the planner (like start & end dates) */
@@ -154,7 +170,7 @@ export class PlannerSettings {
 		showCollectionLinks = $state(true);
 		width = $state(52);
 		leftSide = $state(true);
-		font = $state('Bebas Neue');
+		font = $state('Manrope');
 	})();
 
 	/** Settings for changing the top navigation bar display */
@@ -162,7 +178,7 @@ export class PlannerSettings {
 		disable = $state(false);
 		showCollectionLinks = $state(true);
 		height = $state(45);
-		font = $state('Bebas Neue');
+		font = $state('Manrope');
 	})();
 
 	/** Settings for changing the cover page display */
@@ -174,7 +190,7 @@ export class PlannerSettings {
 		showCollectionLinks = $state(true);
 		showCurrentDay = $state(false);
 		darkBackground = $state(true);
-		font = $state('Bebas Neue');
+		font = $state('Manrope');
 	})();
 
 	/** Settings for changing how the year pages should work */
@@ -195,16 +211,38 @@ export class PlannerSettings {
 	readonly monthPage = new (class MonthPageSettings {
 		disable = $state(false);
 		template = $state('calendar-month-with-notes' as PageTemplate);
-		notePagesTemplate = $state('dotted' as PageTemplate);
-		notePagesAmount = $state(2);
+		/** A second page with its own template, before the note pages */
+		secondPageTemplate = $state('fb-month' as PageTemplate | 'none');
+		notePagesTemplate = $state('fb-month-plan' as PageTemplate);
+		notePagesAmount = $state(1);
+		/** The template of each page of a month, in order */
+		readonly pages = $derived(
+			pageTemplates(
+				this.template,
+				this.secondPageTemplate,
+				this.notePagesTemplate,
+				this.notePagesAmount,
+			),
+		);
 	})();
 
 	/** Settings for changing how the weekly pages should work */
 	readonly weekPage = new (class WeekPageSettings {
 		disable = $state(false);
 		template = $state('agenda-week' as PageTemplate);
-		notePagesTemplate = $state('dotted' as PageTemplate);
-		notePagesAmount = $state(0);
+		/** A second page with its own template, before the note pages */
+		secondPageTemplate = $state('fb-week' as PageTemplate | 'none');
+		notePagesTemplate = $state('fb-inbox' as PageTemplate);
+		notePagesAmount = $state(1);
+		/** The template of each page of a week, in order */
+		readonly pages = $derived(
+			pageTemplates(
+				this.template,
+				this.secondPageTemplate,
+				this.notePagesTemplate,
+				this.notePagesAmount,
+			),
+		);
 		useWeekSinceYear = $state(true);
 		useWeekNumbersInSideNav = $state(false);
 		sideNavDisplay = $state(
@@ -221,7 +259,7 @@ export class PlannerSettings {
 	/** Settings for changing how the daily pages should work */
 	readonly dayPage = new (class DayPageSettings {
 		disable = $state(false);
-		template = $state('notes-day' as PageTemplate);
+		template = $state('fb-day' as PageTemplate);
 		notePagesTemplate = $state('dotted' as PageTemplate);
 		notePagesAmount = $state(0);
 		sideNavDisplay = $state(
@@ -233,6 +271,19 @@ export class PlannerSettings {
 				| 'weeks-this-month'
 				| 'months',
 		);
+	})();
+
+	/**
+	 * Settings for the Field Book: the front pages after the cover, the season pages
+	 * after each quarter and the project/ideas/system pages after the last day.
+	 * (The Field Book month, week & day pages are page templates of those pages.)
+	 */
+	readonly fieldBook = new (class FieldBookSettings {
+		disable = $state(false);
+		/** The number of project slots (each one has a card and three log pages) */
+		projects = $state(8);
+		/** The project tags for the key: one per line, like `HM home and kids` */
+		tags = $state('');
 	})();
 
 	/** The list of extra note/goals collections in addition to the planner pages */
@@ -424,6 +475,19 @@ export class PlannerSettings {
 		}, [] as Day[]),
 	);
 
+	/** The ids of all the dated pages. Used to only link to pages that exist */
+	readonly pageIds = $derived(
+		new Set(
+			[
+				...(this.yearPage.disable ? [] : this.years),
+				...(this.quarterPage.disable ? [] : this.quarters),
+				...(this.monthPage.disable ? [] : this.months),
+				...(this.weekPage.disable ? [] : this.weeks),
+				...(this.dayPage.disable ? [] : this.days),
+			].map((timeframe) => timeframe.id),
+		),
+	);
+
 	/** The list of events imported from the calendars ics urls */
 	events = $derived(
 		this.calendars
@@ -537,6 +601,7 @@ export class PlannerSettings {
 			monthPage: {
 				disable: this.monthPage.disable,
 				template: this.monthPage.template,
+				secondPageTemplate: this.monthPage.secondPageTemplate,
 				notePagesTemplate: this.monthPage.notePagesTemplate,
 				notePagesAmount: this.monthPage.notePagesAmount,
 			},
@@ -548,6 +613,7 @@ export class PlannerSettings {
 				useWeekNumbersInSideNav: this.weekPage.useWeekNumbersInSideNav,
 				sideNavDisplay: this.weekPage.sideNavDisplay,
 				template: this.weekPage.template,
+				secondPageTemplate: this.weekPage.secondPageTemplate,
 			},
 			dayPage: {
 				disable: this.dayPage.disable,
@@ -555,6 +621,11 @@ export class PlannerSettings {
 				notePagesAmount: this.dayPage.notePagesAmount,
 				sideNavDisplay: this.dayPage.sideNavDisplay,
 				template: this.dayPage.template,
+			},
+			fieldBook: {
+				disable: this.fieldBook.disable,
+				projects: this.fieldBook.projects,
+				tags: this.fieldBook.tags,
 			},
 			collections: this.collections.map((collection) => ({
 				...collection,
@@ -658,6 +729,8 @@ export class PlannerSettings {
 			this.monthPage.notePagesAmount = state.monthPage.notePagesAmount;
 		if (state?.monthPage?.template !== undefined)
 			this.monthPage.template = state.monthPage.template;
+		if (state?.monthPage?.secondPageTemplate !== undefined)
+			this.monthPage.secondPageTemplate = state.monthPage.secondPageTemplate;
 
 		// Week Page Settings
 		if (state?.weekPage?.disable !== undefined)
@@ -672,6 +745,8 @@ export class PlannerSettings {
 			this.weekPage.useWeekNumbersInSideNav = state.weekPage.useWeekNumbersInSideNav;
 		if (state?.weekPage?.template !== undefined)
 			this.weekPage.template = state.weekPage.template;
+		if (state?.weekPage?.secondPageTemplate !== undefined)
+			this.weekPage.secondPageTemplate = state.weekPage.secondPageTemplate;
 		if (state?.weekPage?.sideNavDisplay !== undefined)
 			this.weekPage.sideNavDisplay = state.weekPage.sideNavDisplay;
 
@@ -703,6 +778,13 @@ export class PlannerSettings {
 		}
 
 		// Collections
+		// Field Book Settings
+		if (state?.fieldBook?.disable !== undefined)
+			this.fieldBook.disable = state.fieldBook.disable;
+		if (state?.fieldBook?.projects !== undefined)
+			this.fieldBook.projects = state.fieldBook.projects;
+		if (state?.fieldBook?.tags !== undefined) this.fieldBook.tags = state.fieldBook.tags;
+
 		if (state?.collections !== undefined) {
 			this.collections = state.collections.filter(Boolean).map((collection, i) => ({
 				id: collection?.id || `${i}`,

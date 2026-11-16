@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { intersect, type PlannerSettings, type Quarter } from '$lib';
 	import Page from '$lib/components/Page.svelte';
+	import { fbSeason } from '$lib/fieldbook/fieldbook';
+	import FieldBookPages from './FieldBookPages.svelte';
 	import SideNav from './SideNav.svelte';
 	import TopNav from './TopNav.svelte';
 
@@ -29,6 +31,10 @@
 				timeframe={quarter} />
 		</article>
 	{/each}
+{/if}
+
+{#if !settings.fieldBook.disable}
+	<FieldBookPages {settings} {quarter} entries={fbSeason(quarter)} />
 {/if}
 
 <style lang="scss">

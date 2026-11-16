@@ -2,6 +2,7 @@
 	import { formatToString, PlannerSettings, type Timeframe } from '$lib';
 	import HomeIcon from '~icons/material-symbols-light/home-rounded';
 	import { getFontInfo } from '../fonts/fonts';
+	import { fbNavLinks } from '$lib/fieldbook/fieldbook';
 
 	let {
 		timeframe = {} as Timeframe,
@@ -51,6 +52,8 @@
 			: timeframe.month,
 	);
 	const quarter = $derived(Math.floor((month - 1) / 3) + 1);
+
+	const links = $derived([...fbNavLinks(settings, false), ...settings.collections]);
 
 	const font = $derived(settings.topNav.font);
 	const homeIconAdjustments = new Map([
@@ -183,9 +186,9 @@
 			{/if}
 		</ol>
 		<div style="flex: 1"></div>
-		{#if settings.topNav.showCollectionLinks && settings.collections?.length}
+		{#if settings.topNav.showCollectionLinks && links.length}
 			<ol class="links">
-				{#each settings.collections as collection, i (collection.id)}
+				{#each links as collection, i (collection.id)}
 					<li><a href="#{collection.id}">{collection.name}</a></li>
 				{/each}
 			</ol>
